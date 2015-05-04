@@ -1,0 +1,7 @@
+syntax:regexp
+^bin
+^dist
+^eclipse
+^generated
+^.classpath
+^.project
