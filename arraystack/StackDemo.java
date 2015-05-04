@@ -11,7 +11,6 @@ public class StackDemo {
   }
  
   public void push(int value, int sleep) {
-    //if (top == storage.length) throw new StackException("Stack's underlying storage is overflow");
     top++;
     try {
       Thread.sleep(sleep);
@@ -21,18 +20,16 @@ public class StackDemo {
   }
  
   public int peek() {
-    //if (top == -1) throw new StackException("Stack is empty");
     return storage[top];
   }
  
   public int pop(int sleep) {
-    //if (top == -1) throw new StackException("Stack is empty");
     int p = storage[top];
     try {
       Thread.sleep(sleep);
     } catch(Exception e) {
     }
-    top -- ;
+    if (top > 0) top -- ;
     return p;
   }
  

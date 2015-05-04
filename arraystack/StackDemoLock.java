@@ -15,32 +15,32 @@ public class StackDemoLock {
   }
  
   public void push(int value, int sleep) {
-    //if (top == storage.length) throw new StackException("Stack's underlying storage is overflow");
-    lock.lock();
-    top++;
     try {
+      lock.lock();
+      top++;
       Thread.sleep(sleep);
+      storage[top] = value;
     } catch(Exception e) {
+    } finally {
+      lock.unlock();
     }
-    storage[top] = value;
-    lock.unlock();
   }
  
   public int peek() {
-    //if (top == -1) throw new StackException("Stack is empty");
     return storage[top];
   }
  
   public int pop(int sleep) {
-    //if (top == -1) throw new StackException("Stack is empty");
-    lock.lock();
-    int p = storage[top];
+    int p = 0;
     try {
+      lock.lock();
+      p = storage[top];
       Thread.sleep(sleep);
+      if (top > 0) top -- ;
     } catch(Exception e) {
+    } finally {
+      lock.unlock();
     }
-    if (top > 0) top -- ;
-    lock.unlock();
     return p;
   }
  

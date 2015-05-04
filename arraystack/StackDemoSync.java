@@ -19,7 +19,6 @@ public class StackDemoSync {
   }
   
   public synchronized void push(int value, int sleep) {
-    //if (top == storage.length) throw new StackException("Stack's underlying storage is overflow");
     top++;
     try {
       Thread.sleep(sleep);
@@ -30,12 +29,10 @@ public class StackDemoSync {
   }
  
   public int peek() {
-    //if (top == -1) throw new StackException("Stack is empty");
     return storage[top];
   }
  
   public synchronized int pop(int sleep) {
-    //if (top == -1) throw new StackException("Stack is empty");
     int p = storage[top];
     try {
       Thread.sleep(sleep);
