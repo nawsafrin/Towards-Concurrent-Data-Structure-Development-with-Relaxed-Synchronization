@@ -27,10 +27,12 @@ public class StackTestLock {
       service.awaitTermination(AStackConstants.TIMEOUT, TimeUnit.MINUTES);
       if (iteration == NUM_OF_ITERATIONS) {
         after = System.currentTimeMillis();
-        System.out.println("Total number of nodes created for push: " + NUM_OF_OPERATIONS * NUM_OF_THREADS);
+        System.out.println(NUM_OF_THREADS + ", " + AStackConstants.SLEEP + ", " + (NUM_OF_OPERATIONS * NUM_OF_THREADS) + ", "
+            +  ((NUM_OF_OPERATIONS/2) * NUM_OF_THREADS) + ", " + list.size() + ", " + (after-before));
+        /*System.out.println("Total number of nodes created for push: " + NUM_OF_OPERATIONS * NUM_OF_THREADS);
         System.out.println("Total number of nodes popped: " + (NUM_OF_OPERATIONS/2) * NUM_OF_THREADS);
         System.out.println("Total number of nodes actually pushed: " + list.size());   
-        System.out.println("Time passed in ms: " + (after - before));
+        System.out.println("Time passed in ms: " + (after - before));*/
       }
       service = null;
       list = null;
