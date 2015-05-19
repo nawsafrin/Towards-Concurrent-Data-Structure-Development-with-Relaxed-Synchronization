@@ -1,3 +1,6 @@
+import java.util.concurrent.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
@@ -5,8 +8,8 @@ public class StackDemoLock {
   
   private int top;  
   private int[] storage;
-  private WriteLock lock = new ReentrantReadWriteLock().writeLock();
-
+//  private WriteLock lock = new ReentrantReadWriteLock().writeLock();
+   private final Lock lock = new ReentrantLock();
   public StackDemoLock(int capacity) {
     if (capacity <= 0)
       throw new IllegalArgumentException("Stack's capacity must be positive");
@@ -16,7 +19,8 @@ public class StackDemoLock {
  
   public void push(int value, int sleep) {
     try {
-      lock.lock();
+      //lock.lock();
+      lock.tryLock(30,TimeUnit.SECONDS);
       top++;
       Thread.sleep(sleep);
       storage[top] = value;
@@ -33,7 +37,8 @@ public class StackDemoLock {
   public int pop(int sleep) {
     int p = 0;
     try {
-      lock.lock();
+     // lock.lock();
+      lock.tryLock(30,TimeUnit.SECONDS);
       p = storage[top];
       Thread.sleep(sleep);
       if (top > 0) top -- ;
