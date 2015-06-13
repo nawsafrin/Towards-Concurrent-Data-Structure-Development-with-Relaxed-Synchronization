@@ -31,8 +31,10 @@ public class StackDemoLock {
 	  push_flag=1;
     } catch(Exception e) {
     } finally {
+      if(push_flag==1)push_flag_count++;
+      push_flag = 0;
       lock.unlock();
-	  if(push_flag==1)push_flag_count++;
+	 
     }
   }
  
@@ -51,8 +53,10 @@ public class StackDemoLock {
 	  pop_flag=1;
     } catch(Exception e) {
     } finally {
+      if(pop_flag==1)pop_flag_count++;
+      pop_flag = 0;
       lock.unlock();
-	  if(pop_flag==1)pop_flag_count++;
+	  
     }
     return p;
   }
