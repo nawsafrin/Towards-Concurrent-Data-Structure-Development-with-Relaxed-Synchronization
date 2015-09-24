@@ -1,21 +1,24 @@
+
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 public class StackDemoLock {
 
   private int top;
-  private int[] storage;
-  private int push_flag=0;
-  private int pop_flag=0;
-  private int push_flag_count=0;
-  private int pop_flag_count=0;
-  public int timeout=60;
-  private int tp;
-//  private WriteLock lock = new ReentrantReadWriteLock().writeLock();
-   private final Lock lock = new ReentrantLock();
+  private int [] storage;
+  private int pushFlag = 0;
+  private int popFlag = 0;
+  private int pushFlagCount = 0;
+  private int popFlagCount = 0;
+  private int timeout = 60;
+  private int functionCalled = 0;
+  private static final int timeadd = 60;
+  private static final int sample = 10;
+  private static final int error = 20;
+  private static final boolean log = false;
+  private final Lock lock = new ReentrantLock();
+
   public StackDemoLock(int capacity) {
     if (capacity <= 0)
       throw new IllegalArgumentException("Stack's capacity must be positive");
@@ -24,33 +27,33 @@ public class StackDemoLock {
   }
 
   public void push(int value, int sleep) {
-      tp++;
+    functionCalled++;
     try {
       //lock.lock();
       lock.tryLock(timeout,TimeUnit.SECONDS);
       top++;
       Thread.sleep(sleep);
       storage[top] = value;
-	  push_flag=1;
+	  pushFlag =1;
     } catch(Exception e) {
+      System.out.println(e);
     } finally {
-      if(push_flag==1)push_flag_count++;
-      push_flag = 0;
+      if(pushFlag ==1) pushFlagCount++;
+      pushFlag = 0;
       lock.unlock();
-
     }
-    int c=100*(Math.abs(tp-push_flag_count))/tp;
-    if(tp%5==0)
-    {
-        if(c>10)
-        {
-            timeout=timeout + 60;
-        }
-        else if (c<10 && timeout >0)
-	{
-		timeout=timeout - 60;
-	}
 
+    int currentError = 100*(Math.abs(functionCalled - pushFlagCount))/ functionCalled;
+    if(functionCalled % sample == 0)
+    {
+      if (log) System.out.print(currentError + " -> ");
+      if (log) System.out.print(timeout + " -> ");
+      if(currentError > error) {
+        timeout = timeout + timeadd;
+      } else if (currentError < error && timeout >0) {
+		timeout = timeout - timeadd;
+      }
+      if (log) System.out.println(timeout);
     }
 
   }
@@ -69,24 +72,24 @@ public class StackDemoLock {
       p = storage[top];
       Thread.sleep(sleep);
       if (top > 0) top -- ;
-	  pop_flag=1;
+	  popFlag =1;
     } catch(Exception e) {
     } finally {
-      if(pop_flag==1)pop_flag_count++;
-      pop_flag = 0;
+      if(popFlag ==1) popFlagCount++;
+      popFlag = 0;
       lock.unlock();
 
     }
     return p;
   }
-  public int push_count() {
-    return push_flag_count;
-  }
-  public int pop_count() {
-    return pop_flag_count;
+
+  public int pushCount() {
+    return pushFlagCount;
   }
 
-
+  public int popCount() {
+    return popFlagCount;
+  }
 
   public int size() {
     return top + 1;
