@@ -1,4 +1,3 @@
-
 import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -11,12 +10,14 @@ public class StackDemoLock {
   private int popFlag = 0;
   private int pushFlagCount = 0;
   private int popFlagCount = 0;
-  private int timeout = 60;
-  private int functionCalled = 0;
-  private static final int timeadd = 60;
+  private long timeout = 0;
+  private int functionCalled = 0; 
+  private double Error=0;
+  private static final int scale=100;
+  private static  long timeadd = 0;
   private static final int sample = 10;
   private static final int error = 20;
-  private static final boolean log = false;
+  private static final boolean log = true;
   private final Lock lock = new ReentrantLock();
 
   public StackDemoLock(int capacity) {
@@ -30,9 +31,14 @@ public class StackDemoLock {
     functionCalled++;
     try {
       //lock.lock();
+        FileRead b=new FileRead();
+        timeout=scale*(b.get_time());
+        
       lock.tryLock(timeout,TimeUnit.SECONDS);
       top++;
-      Thread.sleep(sleep);
+     // Thread.sleep(sleep);
+     //SimpleIO a=new SimpleIO();
+     FileRead a=new FileRead();
       storage[top] = value;
 	  pushFlag =1;
     } catch(Exception e) {
@@ -42,19 +48,21 @@ public class StackDemoLock {
       pushFlag = 0;
       lock.unlock();
     }
-
-    int currentError = 100*(Math.abs(functionCalled - pushFlagCount))/ functionCalled;
+	timeadd=(functionCalled-pushFlagCount)*scale*timeout;
+    double currentError = 100*(Math.abs(functionCalled - pushFlagCount))/ functionCalled;
     if(functionCalled % sample == 0)
     {
       if (log) System.out.print(currentError + " -> ");
       if (log) System.out.print(timeout + " -> ");
       if(currentError > error) {
         timeout = timeout + timeadd;
-      } else if (currentError < error && timeout >0) {
+      } else if (currentError < error && (timeout-timeadd) >0) {
 		timeout = timeout - timeadd;
       }
       if (log) System.out.println(timeout);
+      Error=currentError;
     }
+    
 
   }
 
@@ -86,10 +94,23 @@ public class StackDemoLock {
   public int pushCount() {
     return pushFlagCount;
   }
+  
+  
 
   public int popCount() {
     return popFlagCount;
   }
+  public long getTimeout() {
+    return timeout;
+  }
+  public double getError() {
+    return Error;
+  }
+  
+  public int Called() {
+    return functionCalled;
+  }
+
 
   public int size() {
     return top + 1;
