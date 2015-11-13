@@ -10,12 +10,14 @@ public class StackTestLock {
     long before = 0;
     long after = 0;
     ExecutorService service;
+    FileRead b=new FileRead();
+    long timeout=(b.get_time());
     StackDemoLock list;
     int size = NUM_OF_OPERATIONS * NUM_OF_THREADS * 2;
 
     for (int iteration = 1; iteration <= NUM_OF_ITERATIONS; iteration++) {
       service = Executors.newFixedThreadPool(2 * NUM_OF_THREADS);
-      list = new StackDemoLock(size);    
+      list = new StackDemoLock(size,timeout);    
       if (iteration == NUM_OF_ITERATIONS) {
         before = System.currentTimeMillis();    
       }
