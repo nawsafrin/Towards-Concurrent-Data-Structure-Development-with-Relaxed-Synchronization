@@ -10,20 +10,22 @@ public class StackDemoLock {
   private int popFlag = 0;
   private int pushFlagCount = 0;
   private int popFlagCount = 0;
-  private long timeout = 0;
+  private long timeout;
   private int functionCalled = 0; 
   private double Error=0;
-  private static final int scale=100;
+  private static final int scale=5;
   private static  long timeadd = 0;
   private static final int sample = 10;
   private static final int error = 20;
   private static final boolean log = true;
   private final Lock lock = new ReentrantLock();
 
-  public StackDemoLock(int capacity) {
+  public StackDemoLock(int capacity, long timeout) {
     if (capacity <= 0)
       throw new IllegalArgumentException("Stack's capacity must be positive");
     storage = new int[capacity];
+    this.timeout=scale*timeout;
+    
     top = -1;
   }
 
@@ -31,8 +33,7 @@ public class StackDemoLock {
     functionCalled++;
     try {
       //lock.lock();
-        FileRead b=new FileRead();
-        timeout=scale*(b.get_time());
+        
         
       lock.tryLock(timeout,TimeUnit.SECONDS);
       top++;
@@ -48,7 +49,7 @@ public class StackDemoLock {
       pushFlag = 0;
       lock.unlock();
     }
-	timeadd=(functionCalled-pushFlagCount)*scale*timeout;
+	timeadd=(Math.abs(functionCalled - pushFlagCount))*scale*timeout;
     double currentError = 100*(Math.abs(functionCalled - pushFlagCount))/ functionCalled;
     if(functionCalled % sample == 0)
     {
