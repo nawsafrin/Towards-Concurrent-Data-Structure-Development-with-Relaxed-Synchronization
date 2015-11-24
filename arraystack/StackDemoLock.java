@@ -17,7 +17,7 @@ public class StackDemoLock {
   private static  long timeadd = 0;
   private static final int sample = 10;
   private static final int error = 20;
-  private static final boolean log = true;
+  private static final boolean log = false;
   private final Lock lock = new ReentrantLock();
 
   public StackDemoLock(int capacity, long timeout) {
@@ -31,39 +31,43 @@ public class StackDemoLock {
 
   public void push(int value, int sleep) {
     functionCalled++;
-    try {
+    
       //lock.lock();
         
-        
-      lock.tryLock(timeout,TimeUnit.SECONDS);
-      top++;
-     // Thread.sleep(sleep);
-     //SimpleIO a=new SimpleIO();
-     FileRead a=new FileRead();
-      storage[top] = value;
-	  pushFlag =1;
-    } catch(Exception e) {
-      System.out.println(e);
-    } finally {
-      if(pushFlag ==1) pushFlagCount++;
-      pushFlag = 0;
-      lock.unlock();
-    }
-	timeadd=(Math.abs(functionCalled - pushFlagCount))*scale*timeout;
-    double currentError = 100*(Math.abs(functionCalled - pushFlagCount))/ functionCalled;
-    if(functionCalled % sample == 0)
-    {
-      if (log) System.out.print(currentError + " -> ");
-      if (log) System.out.print(timeout + " -> ");
-      if(currentError > error) {
-        timeout = timeout + timeadd;
-      } else if (currentError < error && (timeout-timeadd) >0) {
-		timeout = timeout - timeadd;
-      }
-      if (log) System.out.println(timeout);
-      Error=currentError;
-    }
-    
+      try { 
+        if(lock.tryLock(timeout,TimeUnit.SECONDS))
+        { 
+            top++;
+             // Thread.sleep(sleep);
+             //SimpleIO a=new SimpleIO();
+             FileRead a=new FileRead();
+              storage[top] = value;
+                  pushFlag =1; 
+        }
+        else
+        {System.out.println(" ");}
+          } catch(Exception e) {
+            System.out.println(e);
+          } finally {
+            if(pushFlag ==1) pushFlagCount++;
+            pushFlag = 0;
+            lock.unlock();
+          }
+              timeadd=(Math.abs(functionCalled - pushFlagCount))*scale*timeout;
+          double currentError = 100*(Math.abs(functionCalled - pushFlagCount))/ functionCalled;
+          if(functionCalled % sample == 0)
+          {
+            if (log) System.out.print(currentError + " -> ");
+            if (log) System.out.print(timeout + " -> ");
+            if(currentError > error) {
+              timeout = timeout + timeadd;
+            } else if (currentError < error && (timeout-timeadd) >0) {
+                      timeout = timeout - timeadd;
+            }
+            if (log) System.out.println(timeout);
+            Error=currentError;
+          }
+   
 
   }
 
