@@ -29,31 +29,70 @@ public class StackDemoLock {
     top = -1;
   }
 
+  /* SNode n = new SNode();
+		n.setData(d);
+		boolean added = false;
+		try {
+			if (lock.tryLock(SLLConstants.TIME, TimeUnit.MILLISECONDS)) {
+				if (addedCalled.get() % SLLConstants.SAMPLE == 0) {
+					double error = getError();
+					SLLConstants.NUM_OF_WAITING_THREADS = addedCalled.get() - getAddedNode();
+					SLLConstants.Check(error);
+					if (SLLConstants.LOG) {
+						System.out.println("Error: " + error);
+						System.out.println("Time: " + SLLConstants.TIME);
+					}
+				}
+				n.setNext(header.getNext());
+				SLLConstants.read();
+				header.setNext(n);
+				added = true;
+			} else {
+				if (SLLConstants.LOG) {
+					System.out.println("unable to lock thread add");
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			if (added == true) {
+				incrementAddedNode();
+				added = false;
+			}
+			double error = getError();
+			SLLConstants.Check(error);
+			lock.unlock();
+		}
+        */
   public void push(int value, int sleep) {
     functionCalled++;
-    
-      //lock.lock();
-        
-      try { 
-        if(lock.tryLock(timeout,TimeUnit.SECONDS))
-        { 
-            top++;
-             // Thread.sleep(sleep);
-             //SimpleIO a=new SimpleIO();
-             FileRead a=new FileRead();
-              storage[top] = value;
-                  pushFlag =1; 
-        }
-        else
-        {System.out.println(" ");}
-          } catch(Exception e) {
-            System.out.println(e);
-          } finally {
-            if(pushFlag ==1) pushFlagCount++;
-            pushFlag = 0;
-            lock.unlock();
-          }
-              timeadd=(Math.abs(functionCalled - pushFlagCount))*scale*timeout;
+    pushFlag = 0;
+      try {
+			if (lock.tryLock(timeout,TimeUnit.SECONDS)) {
+                top++;
+                // Thread.sleep(sleep);
+                FileRead a=new FileRead();
+                storage[top] = value;
+                pushFlag =1; 
+			} else {
+				if (log) {
+					System.out.println("unable to lock thread add");
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+            if(pushFlag ==1) {
+                pushFlagCount++;
+                pushFlag = 0;
+            }
+			updateTimeout();
+			lock.unlock();
+		}
+  }
+
+  private void updateTimeout() {
+      timeadd=(Math.abs(functionCalled - pushFlagCount))*scale*timeout;
           double currentError = 100*(Math.abs(functionCalled - pushFlagCount))/ functionCalled;
           if(functionCalled % sample == 0)
           {
@@ -67,11 +106,7 @@ public class StackDemoLock {
             if (log) System.out.println(timeout);
             Error=currentError;
           }
-   
-
   }
-
-
 
   public int peek() {
     return storage[top];
